@@ -103,14 +103,14 @@
             await bleCharacteristic.writeValue(data);
             console.log("Sent:", command);
         }
-		function handleNotifications(event) {
-			// event.target.value is a DataView containing the response
-			let value = event.target.value;
-			let decoder = new TextDecoder('utf-8');
-			let response = decoder.decode(value);
-			console.log("Received response:", response);
-			document.getElementById("resp").innerText = response;
-		}
+	function handleNotifications(event) {
+		// event.target.value is a DataView containing the response
+		let value = event.target.value;
+		let decoder = new TextDecoder('utf-8');
+		let response = decoder.decode(value);
+		console.log("Received response:", response);
+		document.getElementById("resp").innerText = response;
+	}
     </script>
 </body>
 </html>
