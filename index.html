@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZC33S BLE Controller</title>
+    <style>
+		body {
+			font-family: Arial, sans-serif;
+			text-align: center;
+			background-color: #121212; /* Dark background */
+			color: #e0e0e0; /* Light text */
+			margin: 0;
+			padding: 0;
+		}
+
+		h2 {
+			margin-top: 50px;
+			color: #ffffff; /* White text */
+		}
+
+		.container {
+			max-width: 400px;
+			margin: 20px auto;
+			padding: 20px;
+			background: #1e1e1e; /* Darker container */
+			border-radius: 10px;
+			box-shadow: 0px 4px 8px rgba(255, 255, 255, 0.1); /* Softer shadow */
+		}
+
+		.btn {
+			display: block;
+			width: 100%;
+			padding: 12px;
+			margin: 10px 0;
+			font-size: 16px;
+			font-weight: bold;
+			color: #ffffff;
+			background-color: #007bff; /* Blue button */
+			border: none;
+			border-radius: 5px;
+			cursor: pointer;
+			transition: 0.3s ease;
+		}
+
+		.btn:hover {
+			background-color: #0056b3;
+		}
+
+		.status {
+			margin-top: 15px;
+			font-size: 14px;
+			color: #bbbbbb; /* Lighter gray */
+		}
+	</style>
+</head>
+<body>
+
+    <h2>ZC33S BLE Controller</h2>
+    <div class="container">
+        <button class="btn" onclick="sendData('kcol_k14c9')">Lock Door</button>
+        <button class="btn" onclick="sendData('kcolnu_k14c8')">Unlock Door</button>
+		<button class="btn" onclick="sendData('loggy_k14c7')">Start Log</button>
+		<button class="btn" onclick="sendData('steinna_k14c6')">Stop Log</button>
+        <p class="status" id="status">Not connected</p>
+		<p class="status" id="resp">...</p>
+    </div>
+
+    <script>
+        let bleDevice;
+        let gattServer;
+        let bleService;
+        let bleCharacteristic;
+        async function connectBLE() {
+            try {
+                bleDevice = await navigator.bluetooth.requestDevice({
+                    acceptAllDevices: true,
+                    optionalServices: ['0000bf00-0000-1000-8000-00805f9b34fb']
+                });
+
+                gattServer = await bleDevice.gatt.connect();
+				bleService = await gattServer.getPrimaryService('0000bf00-0000-1000-8000-00805f9b34fb');
+                bleCharacteristic = await bleService.getCharacteristic('0000fe01-0000-1000-8000-00805f9b34fb');
+				
+				 // Start notifications
+				await bleCharacteristic.startNotifications();
+				bleCharacteristic.addEventListener('characteristicvaluechanged', handleNotifications);
+				
+                document.getElementById("status").innerText = "Connected to ZC33S BLE";
+                console.log("Connected to ZC33S BLE");
+            } catch (error) {
+                document.getElementById("status").innerText = "BLE Connection Error!";
+                console.log("BLE Connection Error: " + error);
+                alert("BLE Connection Error: " + error);
+            }
+        }
+        async function sendData(command) {
+            if (!bleCharacteristic) {
+                await connectBLE();
+            }
+            let encoder = new TextEncoder();
+            let data = encoder.encode(command);  
+            await bleCharacteristic.writeValue(data);
+            console.log("Sent:", command);
+        }
+		function handleNotifications(event) {
+			// event.target.value is a DataView containing the response
+			let value = event.target.value;
+			let decoder = new TextDecoder('utf-8');
+			let response = decoder.decode(value);
+			console.log("Received response:", response);
+			document.getElementById("resp").innerText = response;
+		}
+    </script>
+</body>
+</html>
