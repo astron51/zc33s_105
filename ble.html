@@ -89,15 +89,15 @@
 				bleDevice = await navigator.bluetooth.requestDevice({
 					filters: [{
 						name: 'K14C_122553A',
-						services: ['0000bf00-0000-1000-8000-00805f9b34fb']
+						services: ['0000c200-0000-1000-8000-00805f9b34fb']
 					}]
 				});
 
 				gattServer = await bleDevice.gatt.connect();
 				bleDevice.addEventListener('gattserverdisconnected', onDisconnected);
 
-				bleService = await gattServer.getPrimaryService('0000bf00-0000-1000-8000-00805f9b34fb');
-				bleCharacteristic = await bleService.getCharacteristic('0000fe01-0000-1000-8000-00805f9b34fb');
+				bleService = await gattServer.getPrimaryService('0000c200-0000-1000-8000-00805f9b34fb');
+				bleCharacteristic = await bleService.getCharacteristic('0000c201-0000-1000-8000-00805f9b34fb');
 
 				// Start notifications
 				await bleCharacteristic.startNotifications();
@@ -152,8 +152,8 @@
 					gattServer = await bleDevice.gatt.connect();
 					bleDevice.addEventListener('gattserverdisconnected', onDisconnected);
 
-					bleService = await gattServer.getPrimaryService('0000bf00-0000-1000-8000-00805f9b34fb');
-					bleCharacteristic = await bleService.getCharacteristic('0000fe01-0000-1000-8000-00805f9b34fb');
+					bleService = await gattServer.getPrimaryService('0000c200-0000-1000-8000-00805f9b34fb');
+					bleCharacteristic = await bleService.getCharacteristic('0000c201-0000-1000-8000-00805f9b34fb');
 
 					await bleCharacteristic.startNotifications();
 					bleCharacteristic.addEventListener('characteristicvaluechanged', handleNotifications);
@@ -170,4 +170,5 @@
 		}
     </script>
 </body>
+
 </html>
